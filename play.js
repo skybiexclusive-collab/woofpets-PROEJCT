@@ -9,15 +9,17 @@ async function start() {
     console.log("==========================================");
 
     try {
-        const user = await noblox.setCookie(COOKIE);
-        console.log("Giriş Başarılı: " + user.UserName + " (ID: " + user.UserID + ")");
-        console.log("Adopt Me (ID: " + PLACE_ID + ") sunucu protokolüne bağlanılıyor...");
+        await noblox.setCookie(COOKIE);
+        const currentUser = await noblox.getCurrentUser();
+        console.log(`Giriş Başarılı: ${currentUser.UserName} (ID: ${currentUser.UserID})`);
+        console.log(`Adopt Me (ID: ${PLACE_ID}) sunucu protokolüne bağlanılıyor...`);
         console.log("Bot oyuna katıldı! Haritada aktif ve hazır.");
 
+        // Konsolun kapanmaması ve botun ayakta kalması için döngü
         setInterval(() => {
-            console.log("[OYUNDA] " + user.UserName + " aktif, bağlantı canlı...");
+            console.log(`[OYUNDA] ${currentUser.UserName} aktif, bağlantı canlı...`);
         }, 10000);
-    } catch(err) {
+    } catch (err) {
         console.error("Giriş Hatası:", err.message);
     }
 }
