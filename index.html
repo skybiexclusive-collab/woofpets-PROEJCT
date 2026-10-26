@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WoofPets - In-Game Marketplace</title>
+    
+    <!-- StarPets Orijinal Font ve İkon CDN Kaynakları -->
+    <link rel="preconnect" href="https://cdn.starpets.gg">
+    <link rel="stylesheet" href="https://cdn.starpets.gg/static/libs/animate.css/4.1.1/animate.min.css" media="all">
+    <link rel="stylesheet" href="https://cdn.starpets.gg/static/fonts/staricon/style-rare.css" media="all">
+
+    <style>
+        @font-face {
+            font-family: InterVariable;
+            font-style: normal;
+            font-weight: 100 900;
+            font-display: swap;
+            src: url(https://cdn.starpets.gg/static/fonts/Inter/InterVariable.woff2) format("woff2");
+        }
+        @font-face {
+            font-family: staricon;
+            src: url(https://cdn.starpets.gg/static/fonts/staricon/fonts/staricon.woff2) format("woff2");
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --bg-body: #0d111a;
+            --bg-surface: #141926;
+            --bg-card: #182032;
+            --bg-card-hover: #1e283f;
+            --border-ui: #232d46;
+            --accent-orange: #fe9920;
+            --accent-orange-glow: rgba(254, 153, 32, 0.25);
+            --isbank-blue: #004b93;
+            --isbank-light: #0284c7;
+            --badge-legendary: #ffaa00;
+            --badge-ultra: #ec4899;
+            --badge-rare: #8b5cf6;
+            --status-green: #10b981;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: InterVariable, -apple-system, sans-serif; }
+        body { background: var(--bg-body); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; padding-bottom: 80px; }
+
+        /* Üst Menü */
+        header {
+            position: sticky; top: 0; z-index: 1000;
+            background: rgba(13, 17, 26, 0.92);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border-ui);
+            padding: 14px 28px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .brand-logo {
+            display: flex; align-items: center; gap: 8px;
+            font-size: 20px; font-weight: 900; letter-spacing: -0.5px;
+            text-decoration: none; color: #fff;
+        }
+        .brand-tag {
+            background: var(--accent-orange); color: #000;
+            font-size: 10px; font-weight: 900; padding: 3px 6px; border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .header-tools { display: flex; align-items: center; gap: 14px; }
+
+        .bot-status-chip {
+            background: var(--bg-surface); border: 1px solid var(--border-ui);
+            padding: 7px 14px; border-radius: 99px; font-size: 13px; font-weight: 600;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--status-green);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
+        }
+
+        .btn-topup-main {
+            background: linear-gradient(135deg, var(--isbank-blue) 0%, var(--isbank-light) 100%);
+            color: #fff; border: 1px solid rgba(255,255,255,0.2);
+            padding: 9px 18px; border-radius: 12px; font-weight: 800; font-size: 13px;
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+        }
+        .btn-topup-main:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+        /* Ana İçerik */
+        .container { max-width: 1280px; margin: 0 auto; padding: 28px 20px; }
+
+        /* Banner */
+        .hero-banner {
+            background: radial-gradient(circle at 100% 0%, rgba(2, 132, 199, 0.18) 0%, transparent 60%),
+                        linear-gradient(135deg, #141926 0%, #172036 100%);
+            border: 1px solid var(--border-ui);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 28px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .hero-banner h1 { font-size: 26px; font-weight: 900; margin-bottom: 6px; }
+        .hero-banner p { color: var(--text-secondary); font-size: 14px; }
+
+        /* Toolbar / Arama ve Filtreler */
+        .controls-toolbar {
+            display: flex; flex-wrap: wrap; gap: 14px;
+            justify-content: space-between; align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .search-field { position: relative; flex: 1; max-width: 360px; min-width: 240px; }
+        .search-field input {
+            width: 100%; background: var(--bg-surface); border: 1px solid var(--border-ui);
+            padding: 12px 16px; border-radius: 12px; color: #fff; font-size: 14px; outline: none;
+            transition: border 0.2s;
+        }
+        .search-field input:focus { border-color: var(--accent-orange); }
+
+        .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+        .filter-btn {
+            background: var(--bg-surface); border: 1px solid var(--border-ui);
+            color: var(--text-secondary); padding: 8px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 700; cursor: pointer; transition: 0.2s;
+        }
+        .filter-btn.active, .filter-btn:hover { background: var(--border-ui); color: #fff; border-color: var(--accent-orange); }
+
+        /* Pet Vitrin Kartları */
+        .pet-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+            gap: 16px;
+        }
+
+        .pet-card {
+            background: var(--bg-card); border: 1px solid var(--border-ui);
+            border-radius: 18px; padding: 18px; display: flex; flex-direction: column;
+            position: relative; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .pet-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent-orange);
+            background: var(--bg-card-hover);
+            box-shadow: 0 14px 30px rgba(0,0,0,0.4);
+        }
+
+        .badge-rarity {
+            position: absolute; top: 14px; left: 14px;
+            font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 6px;
+            text-transform: uppercase;
+        }
+        .badge-Legendary { background: rgba(255, 170, 0, 0.15); color: var(--badge-legendary); border: 1px solid var(--badge-legendary); }
+        .badge-Ultra-Rare { background: rgba(236, 72, 153, 0.15); color: var(--badge-ultra); border: 1px solid var(--badge-ultra); }
+        .badge-Rare { background: rgba(139, 92, 246, 0.15); color: var(--badge-rare); border: 1px solid var(--badge-rare); }
+
+        .fly-tag {
+            position: absolute; top: 14px; right: 14px;
+            background: var(--bg-surface); border: 1px solid var(--border-ui);
+            font-size: 11px; font-weight: 800; color: var(--isbank-light);
+            padding: 2px 7px; border-radius: 6px;
+        }
+
+        .pet-avatar {
+            font-size: 64px; height: 120px; display: flex;
+            align-items: center; justify-content: center; margin: 12px 0 6px;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+        }
+
+        .pet-name-label { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+        .pet-stock-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; }
+
+        .card-action-bar {
+            margin-top: auto; display: flex; align-items: center;
+            justify-content: space-between; padding-top: 12px; border-top: 1px solid var(--border-ui);
+        }
+        .price-text { font-size: 19px; font-weight: 900; color: #fff; }
+        .price-text span { font-size: 13px; color: var(--accent-orange); margin-left: 2px; }
+
+        .btn-claim-action {
+            background: var(--accent-orange); color: #000;
+            border: none; padding: 9px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 900; cursor: pointer; transition: 0.2s;
+        }
+        .btn-claim-action:hover { filter: brightness(1.1); transform: scale(1.02); }
+
+        /* Modallar */
+        .modal-shade {
+            position: fixed; inset: 0; background: rgba(9, 12, 18, 0.88);
+            backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center;
+            z-index: 2000; padding: 16px;
+        }
+        .modal-box {
+            background: var(--bg-surface); border: 1px solid var(--border-ui);
+            width: 100%; max-width: 480px; border-radius: 22px; padding: 26px;
+            position: relative; box-shadow: 0 24px 50px rgba(0,0,0,0.7);
+        }
+        .btn-modal-close {
+            position: absolute; top: 18px; right: 18px; background: none;
+            border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer;
+        }
+
+        .bank-summary-card {
+            background: rgba(0, 75, 147, 0.16); border: 1px dashed var(--isbank-light);
+            border-radius: 14px; padding: 16px; margin: 16px 0; font-size: 13px;
+        }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .summary-row:last-child { margin-bottom: 0; }
+        .bold-val { color: #fff; font-weight: 800; word-break: break-all; }
+
+        .input-group { margin-bottom: 14px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-secondary); margin-bottom: 6px; }
+        .input-group input {
+            width: 100%; background: var(--bg-body); border: 1px solid var(--border-ui);
+            border-radius: 10px; padding: 12px 14px; color: #fff; font-size: 14px; outline: none;
+        }
+        .input-group input:focus { border-color: var(--accent-orange); }
+
+        .btn-execute {
+            width: 100%; padding: 14px; border-radius: 12px; border: none;
+            font-weight: 900; font-size: 14px; cursor: pointer; margin-top: 10px;
+        }
+        .btn-green { background: var(--status-green); color: #000; }
+        .btn-orange { background: var(--accent-orange); color: #000; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="#" class="brand-logo" id="siteLogoContainer">
+            🐶 WoofPets <span class="brand-tag">PRO</span>
+        </a>
+        <div class="header-tools">
+            <div class="bot-status-chip">
+                <div class="pulse-dot"></div>
+                <span id="botChipText">Bot Bağlanıyor...</span>
+            </div>
+            <button class="btn-topup-main" onclick="openModal('bankModal')">
+                🏦 İş Bankası Bakiye
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero-banner">
+            <div>
+                <h1 id="heroTitle">WoofPets Otomatik Pazar Alanı</h1>
+                <p>Türkiye İş Bankası havalesiyle bakiye yükleyin, Puppeteer botumuz eşyayı oyun içinde anında teslim etsin.</p>
+            </div>
+        </div>
+
+        <div class="controls-toolbar">
+            <div class="search-field">
+                <input type="text" id="petSearchInput" placeholder="Pet adı ara (örn: Frost, Bat, Cow)..." onkeyup="filterCatalog()">
+            </div>
+            <div class="filter-tabs">
+                <button class="filter-btn active" onclick="setCategory('All', this)">Tümü</button>
+                <button class="filter-btn" onclick="setCategory('Legendary', this)">Legendary</button>
+                <button class="filter-btn" onclick="setCategory('Ultra-Rare', this)">Ultra-Rare</button>
+                <button class="filter-btn" onclick="setCategory('Rare', this)">Rare</button>
+            </div>
+        </div>
+
+        <div class="pet-grid" id="catalogDisplay"></div>
+    </div>
+
+    <!-- İş Bankası Havale Bildirim Modalı -->
+    <div class="modal-shade" id="bankModal">
+        <div class="modal-box animate__animated animate__fadeInUp">
+            <button class="btn-modal-close" onclick="closeModal('bankModal')">&times;</button>
+            <h3 style="font-weight:900; font-size:18px;">İş Bankası ile Bakiye Yükle</h3>
+            <p style="font-size:12px; color:var(--text-secondary); margin-top:4px;">İşCep transferinizin açıklama kısmına kodunuzu yazıp formu onaylayın.</p>
+
+            <div class="bank-summary-card">
+                <div class="summary-row"><span>Banka:</span><span class="bold-val" id="dynBankName">-</span></div>
+                <div class="summary-row"><span>Alıcı (Hesap Sahibi):</span><span class="bold-val" id="dynRecipient">-</span></div>
+                <div class="summary-row"><span>IBAN:</span><span class="bold-val" id="dynIban">-</span></div>
+                <div class="summary-row" style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:8px;">
+                    <span style="color:var(--accent-orange); font-weight:bold;">Açıklama Kodu:</span>
+                    <span class="bold-val" id="orderCodeTag" style="color:var(--accent-orange); font-size:15px;">-</span>
+                </div>
+            </div>
+
+            <form onsubmit="handlePaymentSubmit(event)">
+                <input type="hidden" id="orderCodeHidden">
+                <div class="input-group">
+                    <label>Roblox Kullanıcı Adınız</label>
+                    <input type="text" id="payUsername" placeholder="örn: OyuncuAdiniz" required>
+                </div>
+                <div class="input-group">
+                    <label>Gönderen Hesap Sahibi (Ad Soyad)</label>
+                    <input type="text" id="paySender" placeholder="Banka hesabınızdaki ad soyad" required>
+                </div>
+                <div class="input-group">
+                    <label>Yatırılan Tutar (TL)</label>
+                    <input type="number" id="payAmount" min="10" placeholder="Örn: 100" required>
+                </div>
+                <button type="submit" class="btn-execute btn-green">Havale Bildirimini Gönder</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Puppeteer Teslimat Modalı -->
+    <div class="modal-shade" id="deliveryModal">
+        <div class="modal-box animate__animated animate__fadeInUp">
+            <button class="btn-modal-close" onclick="closeModal('deliveryModal')">&times;</button>
+            <h3 style="font-weight:900; font-size:18px;">Otomatik Bot Teslimatı</h3>
+            <p style="font-size:12px; color:var(--text-secondary); margin:6px 0 16px;" id="deliveryPetLabel"></p>
+
+            <div style="background:var(--bg-body); border:1px solid var(--border-ui); padding:14px; border-radius:14px; margin-bottom:14px;">
+                <div style="font-size:11px; color:var(--text-secondary); text-transform:uppercase; font-weight:800;">Görevlendirilen Roblox Botu</div>
+                <div style="font-weight:900; color:var(--accent-orange); font-size:16px; margin-top:2px;" id="dynBotName">ilgazko130</div>
+                <div style="font-size:12px; color:var(--status-green); margin-top:4px;">● Puppeteer motoru hazır</div>
+            </div>
+
+            <div class="input-group">
+                <label>Teslim Alacak Roblox Adınız</label>
+                <input type="text" id="targetRobloxUser" placeholder="Roblox adınızı yazın" required>
+            </div>
+            <button class="btn-execute btn-orange" onclick="executeDelivery()">Botu Oyuna Gönder ve Takas Başlat</button>
+        </div>
+    </div>
+
+    <script>
+        let catalog = [];
+        let activeCategory = 'All';
+        let targetedPet = null;
+
+        // Sayfa açıldığında .env verilerini API'den yükleme
+        function bootstrapApp() {
+            fetch('/api/bootstrap')
+                .then(r => r.json())
+                .then(data => {
+                    // .env'den gelen başlık ve marka ayarları
+                    document.title = `${data.meta.siteName} - Marketplace of In-Game Items`;
+                    document.getElementById('siteLogoContainer').innerHTML = `${data.meta.siteLogo} <span class="brand-tag">PRO</span>`;
+                    document.getElementById('heroTitle').innerText = `${data.meta.siteName} Otomatik Pazar Alanı`;
+                    document.getElementById('botChipText').innerText = `Bot: ${data.meta.botUser} (${data.meta.botStatus})`;
+                    document.getElementById('dynBotName').innerText = data.meta.botUser;
+
+                    // .env'den gelen banka ayarları
+                    document.getElementById('dynBankName').innerText = data.bank.bankName;
+                    document.getElementById('dynRecipient').innerText = data.bank.recipient;
+                    document.getElementById('dynIban').innerText = data.bank.iban;
+
+                    // Pet kataloğu
+                    catalog = data.catalog;
+                    renderCards(catalog);
+                })
+                .catch(err => console.error("API Bağlantı Hatası:", err));
+        }
+
+        function renderCards(list) {
+            const container = document.getElementById('catalogDisplay');
+            container.innerHTML = '';
+            if (list.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary); grid-column:1/-1;">Aradığınız kriterlere uygun pet bulunamadı.</p>';
+                return;
+            }
+
+            list.forEach(item => {
+                container.innerHTML += `
+                    <div class="pet-card">
+                        <span class="badge-rarity badge-${item.rarity}">${item.rarity}</span>
+                        <span class="fly-tag">${item.flyRide}</span>
+                        <div class="pet-avatar">${item.img}</div>
+                        <div class="pet-name-label">${item.name}</div>
+                        <div class="pet-stock-label">Stok: ${item.stock} Adet (Anında Teslim)</div>
+                        <div class="card-action-bar">
+                            <div class="price-text">${item.price}<span>TL</span></div>
+                            <button class="btn-claim-action" onclick="openDeliveryModal('${item.name}')">Teslim Al</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function filterCatalog() {
+            const query = document.getElementById('petSearchInput').value.toLowerCase();
+            const filtered = catalog.filter(item => {
+                const nameMatches = item.name.toLowerCase().includes(query);
+                const categoryMatches = (activeCategory === 'All' || item.rarity === activeCategory);
+                return nameMatches && categoryMatches;
+            });
+            renderCards(filtered);
+        }
+
+        function setCategory(cat, btn) {
+            activeCategory = cat;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterCatalog();
+        }
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+            if (id === 'bankModal') {
+                const code = "WP-" + Math.floor(10000 + Math.random() * 90000);
+                document.getElementById('orderCodeTag').innerText = code;
+                document.getElementById('orderCodeHidden').value = code;
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function openDeliveryModal(petName) {
+            targetedPet = petName;
+            document.getElementById('deliveryPetLabel').innerText = `${petName} için bot takas daveti hazırlayacaktır.`;
+            openModal('deliveryModal');
+        }
+
+        function executeDelivery() {
+            const user = document.getElementById('targetRobloxUser').value.trim();
+            if (!user) return alert("Lütfen teslim alacak Roblox kullanıcı adınızı girin!");
+
+            fetch(
